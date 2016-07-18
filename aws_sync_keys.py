@@ -1,4 +1,23 @@
 #!/usr/bin/env python
+#    AWS ssh Id sync tool (maintains known_hosts)
+#    Copyright (C) 2016  Glen Pitt-Pladdy
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+#
+# See: https://www.pitt-pladdy.com/blog/
+#
 
 import boto.ec2
 import time
@@ -69,8 +88,8 @@ awsinstances = {}
 #for reservation in bconn.get_all_reservations(filters={'instance-state-name': ['running','pending','shutting-down','stopping','stopped']}):
 for reservation in bconn.get_all_reservations():
 	for instance in reservation.instances:
-		print instance.id
-		print instance.state
+#		print instance.id
+#		print instance.state
 # skip "terminated"
 		# TODO loop all instances TODO
 		if instance.state == 'terminated': continue
@@ -88,8 +107,8 @@ for reservation in bconn.get_all_reservations():
 		timeoutafter = time.time () + timeout
 		if reservation.instances[0].id in sshinstances and 'keys' in sshinstances[reservation.instances[0].id]:
 			instance['keys'] = sshinstances[reservation.instances[0].id]['keys']
-			print "existing"
-			print  instance['keys']
+#			print "existing"
+#			print  instance['keys']
 			booting = False
 		else:
 			booting = True
@@ -106,36 +125,36 @@ for reservation in bconn.get_all_reservations():
 						linecount += 1
 						if foundlogin: linesafterlogin += 1
 						if re.match ( r'^ip-\d+-\d+-\d+-\d+\s+login:', line.strip() ):
-							print "login"
+#							print "login"
 							foundlogin = True
 						if re.match ( r'^---+BEGIN SSH HOST KEY KEYS---+$', line.strip() ):
-							print "begin"
+#							print "begin"
 							keys = True
 							continue
 						if re.match ( r'^---+END SSH HOST KEY KEYS---+$', line.strip() ):
-							print "end"
+#							print "end"
 							keys = False
 							continue
 						if keys == True:
 							keylines.append ( line.strip() )
 					if len(keylines) > 0:
 						instance['keys'] = keylines
-						print "captured keys"
-						print  instance['keys']
+#						print "captured keys"
+#						print  instance['keys']
 					if linesafterlogin == 0 or not foundlogin:
 						# normally it stops at the login prompt - we would only use ssh so lines after means rebooting
 						booting = False
 					if not foundlogin:
 						booting = True
-					print "lines"
-					print  keylines
+#					print "lines"
+#					print  keylines
 				if waitforboot:
 					timenow = time.time ()
 					if booting and timenow < timeoutafter:
-						print "%s: waitng for boot" % reservation.instances[0].id
+#						print "%s: waitng for boot" % reservation.instances[0].id
 						time.sleep ( pollinterval )
 					else:
-						print "%s: booted or timed out" % reservation.instances[0].id
+#						print "%s: booted or timed out" % reservation.instances[0].id
 						break
 		instance['Booting'] = booting
 		awsinstances[reservation.instances[0].id] = instance
