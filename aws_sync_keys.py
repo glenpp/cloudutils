@@ -16,7 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 #
-# See: https://www.pitt-pladdy.com/blog/
+# See: https://www.pitt-pladdy.com/blog/_20160717-152327_0100_AWS_ssh_known_host_sync/
 #
 
 import boto.ec2
